@@ -1,0 +1,78 @@
+body {
+  font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-top: 72px;
+  -webkit-font-smoothing: antialiased;
+  font-size: 1.125em;
+  color: #333;
+  line-height: 1.5em;
+}
+
+h1, h2, h3 {
+  color: #000;
+}
+h1 {
+  font-size: 2.5em
+}
+
+h2 {
+  font-size: 2em
+}
+
+h3 {
+  font-size: 1.5em
+}
+
+a {
+  text-decoration: none;
+  color: #09f;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Page styling */
+h2 a {
+  font-size: 0.5em;
+}
+
+/* Crossword */
+
+table.crossword-table,
+table.crossword-table td {
+  border: 1px solid black;
+}
+
+table.crossword-table td {
+  height: 30px;
+  width: 30px;
+  text-align: center;
+  position: relative;
+}
+
+table.crossword-table td.empty {
+  background-color: black;
+}
+
+table.crossword-table span.clue-number {
+  position: absolute;
+  font-size: 0.6em;
+  top: 2px;
+  left: 2px;
+}
+
+.hidden {
+  color: white;
+}
+
+td > input[type="text"] {
+  width: 100%;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+table.crossword-table td.selected {
+  background: blue;
+}
