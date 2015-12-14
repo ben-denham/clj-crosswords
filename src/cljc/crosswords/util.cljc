@@ -15,3 +15,6 @@
   (first (keep-indexed (fn [idx val]
                          (when (= item val) idx))
                        seq)))
+(defn last-index-of [item seq]
+  "Return the index where item last occurs in seq."
+  (first-index-of item (reverse seq)))

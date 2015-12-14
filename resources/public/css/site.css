@@ -38,6 +38,10 @@ h2 a {
   font-size: 0.5em;
 }
 
+tr.top-aligned > td {
+  vertical-align: top;
+}
+
 /* Crossword */
 
 table.crossword-table,
@@ -50,10 +54,12 @@ table.crossword-table td {
   width: 30px;
   text-align: center;
   position: relative;
+  cursor: pointer;
 }
 
 table.crossword-table td.empty {
   background-color: black;
+  cursor: default;
 }
 
 table.crossword-table span.clue-number {
@@ -67,12 +73,19 @@ table.crossword-table span.clue-number {
   color: white;
 }
 
-td > input[type="text"] {
-  width: 100%;
-  text-align: center;
-  text-transform: uppercase;
+table.crossword-table td.active {
+  background: #bce8f1;
+  font-weight: bold;
 }
 
 table.crossword-table td.selected {
-  background: blue;
+  background: #68CDFF;
+}
+
+table.crossword-table td.correct {
+  background: #d6e9c6;
+}
+
+table.crossword-table td.correct.selected {
+  background: #63C564;
 }

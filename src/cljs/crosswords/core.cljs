@@ -1,15 +1,16 @@
 (ns crosswords.core
-    (:require [reagent.core :as reagent :refer [atom]]
-              [reagent.session :as session]
-              [secretary.core :as secretary :include-macros true]
-              [goog.events :as events]
-              [goog.history.EventType :as EventType]
-              [crosswords.util :refer [set-hash!]]
-              [crosswords.player :refer [crossword-player]]
-              [ajax.core :refer [GET]])
-    (:import goog.History))
+  (:require [reagent.core :as r]
+            [reagent.session :as session]
+            [secretary.core :as secretary :include-macros true]
+            [goog.events :as events]
+            [goog.history.EventType :as EventType]
+            [crosswords.js-util :refer [set-hash!]]
+            [crosswords.player :refer [crossword-player]]
+            [ajax.core :refer [GET]])
+  (:import goog.History))
 
-(defonce puzzle (atom nil))
+(defonce puzzle (r/atom nil))
+
 
 ;; -------------------------
 ;; Views
@@ -56,7 +57,7 @@
 ;; Initialize app
 (defn mount-root []
   (when-let [current-page (session/get :current-page)]
-    (reagent/render [current-page] (.getElementById js/document "app"))))
+    (r/render [current-page] (.getElementById js/document "app"))))
 
 (defn init! []
   (hook-browser-navigation!)
