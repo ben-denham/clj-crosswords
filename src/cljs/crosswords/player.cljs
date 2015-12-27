@@ -67,22 +67,46 @@
     (reset! cursor-atom (build-cursor square new-across?))))
 
 
-(defn transform-cursor [idx-transform cursor puzzle]
-  (let [cur-row (:row (:square cursor))
-        cur-col (:col (:square cursor))
+(defn valid-cursor-position? [square grid]
+  (let [row (:row square)
+        col (:col square)
+        grid-keys (map #(keyword (str %)) [row col])]
+    (not (nil? (get-in grid grid-keys)))))
+
+(defn transform-cursor [col-transform row-transform cursor puzzle]
+  (let [grid (:grid puzzle)
+        clues (:clues puzzle)
+        row (:row (:square cursor))
+        col (:col (:square cursor))
         across? (:across? cursor)
-        new-row (if across? cur-row (idx-transform cur-row))
-        new-col (if across? (idx-transform cur-col) cur-col)]
-    (if (nil? (get-in (:grid puzzle) (map #(keyword (str %)) [new-row new-col])))
-      cursor
-      (build-cursor (build-square new-col new-row) across?))))
+        new-square (build-square (col-transform col)
+                                 (row-transform row))
+        new-across? (if (direction-allowed? (build-cursor new-square across?) clues)
+                      across? (not across?))]
+    (if (valid-cursor-position? new-square grid)
+      (build-cursor new-square new-across?)
+      cursor)))
 
 (defn next-cursor [cursor puzzle]
-  (transform-cursor inc cursor puzzle))
+  (let [across? (:across? cursor)
+        row-transform (if across? identity inc)
+        col-transform (if across? inc identity)]
+    (transform-cursor col-transform row-transform cursor puzzle)))
 
 (defn prev-cursor [cursor puzzle]
-  (transform-cursor dec cursor puzzle))
+  (let [across? (:across? cursor)
+        row-transform (if across? identity dec)
+        col-transform (if across? dec identity)]
+    (transform-cursor col-transform row-transform cursor puzzle)))
 
+(defn up-cursor [cursor puzzle]
+  (transform-cursor identity inc cursor puzzle))
+(defn down-cursor [cursor puzzle]
+  (transform-cursor identity dec cursor puzzle))
+(defn left-cursor [cursor puzzle]
+  (transform-cursor dec identity cursor puzzle))
+(defn right-cursor [cursor puzzle]
+  (transform-cursor inc identity cursor puzzle))
 
 (defn handle-keypress [e]
   (let [puzzle @puzzle-atom
@@ -97,10 +121,16 @@
     (defn backspace-press []
       (swap! cursor-atom prev-cursor puzzle)
       (swap! game-state-atom assoc cur-square nil))
+    (defn move-cursor [transform]
+      (swap! cursor-atom transform puzzle))
     (let [keycode (.-keyCode e)]
       (.preventDefault e)
       (cond (letter-keycode? keycode) (letter-press keycode)
-            (= 8 keycode) (backspace-press)))))
+            (= 8 keycode) (backspace-press)
+            (= 37 keycode) (move-cursor left-cursor)
+            (= 38 keycode) (move-cursor down-cursor)
+            (= 39 keycode) (move-cursor right-cursor)
+            (= 40 keycode) (move-cursor up-cursor)))))
 
 
 (defn crossword-table [puzzle cursor game-state]
