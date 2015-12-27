@@ -108,6 +108,28 @@
 (defn right-cursor [cursor puzzle]
   (transform-cursor inc identity cursor puzzle))
 
+(defn sort-clues [clues]
+  (let [clue-direction-groups (group-by :across? clues)
+        across-clues (get clue-direction-groups true)
+        down-clues (get clue-direction-groups false)]
+    (concat (sort-by :number across-clues)
+            (sort-by :number down-clues))))
+
+(defn next-word-cursor [cursor puzzle]
+  (let [clues (:clues puzzle)
+        active-word (selected-word cursor clues)
+        sorted-clues (cycle (sort-clues clues))
+        next-word (second (drop-while #(not= active-word %) sorted-clues))
+        new-square (build-square (:start-col next-word) (:start-row next-word))]
+    (build-cursor new-square (:across? next-word))))
+(defn prev-word-cursor [cursor puzzle]
+  (let [clues (:clues puzzle)
+        active-word (selected-word cursor clues)
+        sorted-clues (cycle (reverse (sort-clues clues)))
+        next-word (second (drop-while #(not= active-word %) sorted-clues))
+        new-square (build-square (:start-col next-word) (:start-row next-word))]
+    (build-cursor new-square (:across? next-word))))
+
 (defn handle-keypress [e]
   (let [puzzle @puzzle-atom
         cursor @cursor-atom
@@ -123,14 +145,17 @@
       (swap! game-state-atom assoc cur-square nil))
     (defn move-cursor [transform]
       (swap! cursor-atom transform puzzle))
-    (let [keycode (.-keyCode e)]
+    (let [keycode (.-keyCode e)
+          shift? (.-shiftKey e)]
       (.preventDefault e)
       (cond (letter-keycode? keycode) (letter-press keycode)
-            (= 8 keycode) (backspace-press)
             (= 37 keycode) (move-cursor left-cursor)
             (= 38 keycode) (move-cursor down-cursor)
             (= 39 keycode) (move-cursor right-cursor)
-            (= 40 keycode) (move-cursor up-cursor)))))
+            (= 40 keycode) (move-cursor up-cursor)
+            (and (= 9 keycode) shift?) (move-cursor prev-word-cursor) ;; shift-tab
+            (= 9 keycode) (move-cursor next-word-cursor) ;; tab
+            (= 8 keycode) (backspace-press)))))
 
 
 (defn crossword-table [puzzle cursor game-state]
