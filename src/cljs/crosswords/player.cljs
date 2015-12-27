@@ -193,24 +193,26 @@
          [:h3 {:class "win"} "Congratulations, you win!"])])))
 
 
-(defn crossword-clues [puzzle]
-  (defn crossword-clue [clue]
-    (let [clue-number (:number clue)
-          clue-text (:clue clue)
-          clue-length (count (:answer clue))]
-      [:p (str clue-number ". " clue-text " (" clue-length ")")]))
-  (defn crossword-clues-list [title clues]
-    [:div
-     [:h3 title]
-     (for [clue clues]
-       ^{:key (:number clue)} [crossword-clue clue])])
-  (let [clues (:clues puzzle)
-        across (sort-by :number (filter #(:across? %) clues))
-        down (sort-by :number (filter #(not (:across? %)) clues))]
-    [:table.crossword-clues
-     [:tr {:class "top-aligned"}
-      [:td [crossword-clues-list "Across" across]]
-      [:td [crossword-clues-list "Down" down]]]]))
+(defn crossword-clues [puzzle cursor]
+  (let [active-word (selected-word cursor (:clues puzzle))]
+    (defn crossword-clue [clue]
+      (let [clue-number (:number clue)
+            clue-text (:clue clue)
+            clue-length (count (:answer clue))
+            classes (class-list {"selected" (= clue active-word)})]
+        [:p {:class classes} (str clue-number ". " clue-text " (" clue-length ")")]))
+    (defn crossword-clues-list [title clues]
+      [:div
+       [:h3 title]
+       (for [clue clues]
+         ^{:key (:number clue)} [crossword-clue clue])])
+    (let [clues (:clues puzzle)
+          across (sort-by :number (filter #(:across? %) clues))
+          down (sort-by :number (filter #(not (:across? %)) clues))]
+      [:table.crossword-clues
+       [:tr {:class "top-aligned"}
+        [:td [crossword-clues-list "Across" across]]
+        [:td [crossword-clues-list "Down" down]]]])))
 
 
 (defn crossword-player [puzzle-atom-input]
@@ -223,7 +225,7 @@
       [:div.crossword-player {:on-keydown handle-keypress}
        [:table [:tr {:class "top-aligned"}
                 [:td {:width 550} [crossword-table puzzle cursor game-state]]
-                [:td {:width 550} [crossword-clues puzzle]]]]])))
+                [:td {:width 550} [crossword-clues puzzle cursor]]]]])))
 
 (defn init-handlers []
   (events/listen (KeyHandler. js/document) EventType.KEY handle-keypress))

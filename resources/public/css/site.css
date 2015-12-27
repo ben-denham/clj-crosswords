@@ -89,3 +89,12 @@ table.crossword-table td.correct {
 table.crossword-table td.correct.selected {
   background: #63C564;
 }
+
+
+table.crossword-clues p {
+  padding: 3px;
+}
+
+table.crossword-clues p.selected {
+  background: #bce8f1;
+}
