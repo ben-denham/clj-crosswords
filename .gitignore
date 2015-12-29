@@ -14,3 +14,4 @@ pom.xml.asc
 *.log
 /.env
 /resources/clues.tsv
+/resources/public/css/site.min.css
