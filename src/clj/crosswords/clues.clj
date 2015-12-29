@@ -1,35 +1,39 @@
 (ns crosswords.clues
-  (:require [cljx-sampling.random :as random]
-            [clojure.java.io :refer [reader resource]]
+  (:require [clojure.java.io :refer [reader resource]]
             [clojure.string :as string]))
 
 (def clues-path (resource "clues.tsv"))
 
-(defn- file-line-count [file-path]
-  "Returns the number of lines in the file at file-path."
+(defn parse-int [string]
+  "Integer parser that falls back to 0 if string cannot be parsed"
+  (try
+    (. Integer parseInt string)
+    (catch NumberFormatException ex 0)))
+
+(defn- get-file-lines [file-path]
+  "Return a sequence of all of the lines in the given file."
   (with-open [rdr (reader file-path)]
-    (count (line-seq rdr))))
+    (doall (line-seq rdr))))
 
-(defn- random-line [rng file-path]
-  "Retrieves a random line from file-path based on the rng."
-  (let [line-count (file-line-count file-path)
-        random-line-index (random/next-int! rng line-count)]
-    (with-open [rdr (reader file-path)]
-      (->> (line-seq rdr)
-           (drop random-line-index) ;; Drop lines before
-                                    ;; random-line-index.
-           (first)))))
+(defn- random-line! [rng lines]
+  "Retrieves a random line from the given lines based on the rng."
+  (let [random-line-index (.nextInt rng (count lines))]
+    (->> lines
+         (drop random-line-index) ;; Drop lines before
+                                  ;; random-line-index.
+         (first))))
 
-(defn- random-clue [rng]
-  "Retrieves a random clue (a vector of [clue answer]) from the clues
-  file based on the rng. The clues file is expected to contain one
-  clue on each line, with clue text followed by a tab followed by the
-  answer."
-  (let [clue-line (random-line rng clues-path)]
+(defn- random-clue! [rng lines]
+  "Retrieves a random clue (a vector of [clue answer]) from the list
+  of clues lines based on the rng. Each clue line is expected to
+  contain the clue text followed by a tab followed by the answer."
+  (let [clue-line (random-line! rng lines)]
     (string/split clue-line #"\t")))
 
 (defn random-clue-generator [seed]
   "Returns a function that returns a random clue each time it is
   called based on the provided rng seed."
-  (let [rng (random/create seed)]
-    #(random-clue rng)))
+  (let [seed-int (parse-int seed)
+        rng (java.util.Random. seed-int)
+        lines (get-file-lines clues-path)]
+    #(random-clue! rng lines)))

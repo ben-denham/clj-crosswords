@@ -17,8 +17,7 @@
                  [org.clojure/clojurescript "1.7.122" :scope "provided"]
                  [secretary "1.2.3"]
                  [org.clojure/data.json "0.2.6"]
-                 [cljs-ajax "0.3.14"]
-                 [cljx-sampling "0.1.0"]]
+                 [cljs-ajax "0.3.14"]]
 
   :plugins [[lein-environ "1.0.1"]
             [lein-asset-minifier "0.2.2"]
