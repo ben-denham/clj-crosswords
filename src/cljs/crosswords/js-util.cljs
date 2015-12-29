@@ -3,8 +3,7 @@
             [clojure.string :refer [join]]))
 
 (defn set-hash! [location]
-  (set! (.-hash js/window.location) location)
-  (secretary/dispatch! location))
+  (set! (.-hash js/window.location) location))
 
 (defn class-list [classes]
   (join " "
