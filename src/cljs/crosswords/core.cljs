@@ -21,6 +21,10 @@
      [:a {:href "/"} "New Crossword"]
      [crossword-player puzzle]]))
 
+(defn app []
+  (when-let [page (session/get :current-page)]
+    [page]))
+
 ;; -------------------------
 ;; Routes
 (secretary/set-config! :prefix "#")
@@ -55,10 +59,9 @@
 
 ;; -------------------------
 ;; Initialize app
-(defn mount-root []
-  (when-let [current-page (session/get :current-page)]
-    (r/render [current-page] (.getElementById js/document "app"))))
+(defn mount-components []
+  (r/render [#'app] (.getElementById js/document "app")))
 
 (defn init! []
   (hook-browser-navigation!)
-  (mount-root))
+  (mount-components))
