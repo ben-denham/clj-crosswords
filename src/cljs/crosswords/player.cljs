@@ -204,8 +204,8 @@
     (defn crossword-clues-list [title clues]
       [:div
        [:h3 title]
-       (for [clue clues]
-         ^{:key (:number clue)} [crossword-clue clue])])
+       (for [[idx clue] (map-indexed vector clues)]
+         ^{:key idx} [crossword-clue clue])])
     (let [clues (:clues puzzle)
           across (sort-by :number (filter #(:across? %) clues))
           down (sort-by :number (filter #(not (:across? %)) clues))]
