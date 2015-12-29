@@ -47,24 +47,32 @@
              below (get-in grid [(inc start-row) start-col])
              left (get-in grid [start-row (dec start-col)])
              right (get-in grid [start-row (inc start-col)])]
-         (if (and (or (not first?)
+         (if (and (or (not first?) ;; The first letter must have an
+                                   ;; empty space before it.
                       (if across?
                         (nil? left)
                         (nil? above)))
-                  (or (not last?)
+                  (or (not last?) ;; The last letter must have an
+                                  ;; empty space after it.
                       (if across?
                         (nil? right)
                         (nil? below)))
+                  ;; Each letter must be on the grid.
                   (>= start-row 0)
                   (< start-row grid-size)
                   (>= start-col 0)
                   (< start-col grid-size)
+                  ;; It must either match an existing letter in the
+                  ;; grid, or have no conflicting letters on either
+                  ;; side.
                   (or (= letter current-letter)
                       (if across?
                         (and (nil? above)
                              (nil? below))
                         (and (nil? left)
                              (nil? right))))
+                  ;; If there is already a letter, then it must be the
+                  ;; same.
                   (or (= letter current-letter)
                       (nil? current-letter)))
            (if across?
@@ -126,8 +134,11 @@
      [placements grid]
      (let [[clue answer] (*random-clue-generator*)
            possible-placements-for-clue (possible-placements placements clue answer)
-           allowed-placements (filter #(can-add-placement? % grid) possible-placements-for-clue)]
-       (if-let [new-placement (first allowed-placements)]
+           allowed-placements (filter #(can-add-placement? % grid) possible-placements-for-clue)
+           new-placement (first allowed-placements)]
+       (if (and (not (nil? new-placement))
+                ;; Ensure that the answer is not already in use on the grid.
+                (every? #(not= (:answer new-placement) (:answer %)) placements))
          (recur (conj placements new-placement) (add-placement new-placement grid) (inc check-count))
          (recur placements grid (inc check-count)))))))
 
