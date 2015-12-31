@@ -158,6 +158,14 @@
             (= 9 keycode) (move-cursor next-word-cursor) ;; tab
             (= 8 keycode) (backspace-press)))))
 
+(defn letter-hint []
+  (let [puzzle @puzzle-atom
+        cursor @cursor-atom
+        square (:square cursor)
+        grid-keys (map #(keyword (str %)) [(:row square) (:col square)])
+        cell (get-in (:grid puzzle) grid-keys)
+        letter (:letter cell)]
+    (swap! game-state-atom assoc square letter)))
 
 (defn crossword-table [puzzle cursor game-state]
   (let [grid (:grid puzzle)
@@ -190,8 +198,9 @@
         [:tbody
          (for [[idx row] (map-indexed vector rows)]
            ^{:key idx} [crossword-table-row idx row])]]
-       (when (puzzle-complete? puzzle game-state)
-         [:h3 {:class "win"} "Congratulations, you win!"])])))
+       (if (puzzle-complete? puzzle game-state)
+         [:h3 {:class "win"} "Congratulations, you win!"]
+         [:button {:on-click letter-hint :style {:padding "5px" :margin-top "10px"}} "Letter hint"])])))
 
 
 (defn crossword-clues [puzzle cursor]
