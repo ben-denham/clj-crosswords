@@ -1,6 +1,5 @@
 (require '[clojure.java.io :as io]
-         '[clojure.string :as string]
-         '[clojure.data.json :as json])
+         '[clojure.string :as string])
 
 (def dictionary-file-path "/usr/share/dict/british-english")
 
