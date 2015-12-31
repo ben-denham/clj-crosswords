@@ -125,6 +125,18 @@
            updated-possible-placements (concat possible-placements new-possible-placements)]
        (recur rest-existing-placements clue answer updated-possible-placements)))))
 
+(defn- placement-unique? [new-placement placements]
+  (defn subword [word1 word2]
+    (let [len1 (.length word1)
+          len2 (.length word2)]
+      (cond
+        (< len1 len2) (not= (.indexOf word2 word1) -1)
+        (> len1 len2) (not= (.indexOf word1 word2) -1)
+        :else (= word1 word2))))
+  (let [new-answer (:answer new-placement)
+        answers (map :answer placements)]
+    (every? #(not (subword new-answer %)) answers)))
+
 (defn- build-crossword
   ([placements grid]
    (build-crossword placements grid 0))
@@ -138,7 +150,7 @@
            new-placement (first allowed-placements)]
        (if (and (not (nil? new-placement))
                 ;; Ensure that the answer is not already in use on the grid.
-                (every? #(not= (:answer new-placement) (:answer %)) placements))
+                (placement-unique? new-placement placements))
          (recur (conj placements new-placement) (add-placement new-placement grid) (inc check-count))
          (recur placements grid (inc check-count)))))))
 
