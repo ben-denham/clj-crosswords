@@ -10,6 +10,13 @@
     (. Integer parseInt string)
     (catch NumberFormatException ex 0)))
 
+(defn deterministic-shuffle
+  [^java.util.Collection coll seed]
+  (let [al (java.util.ArrayList. coll)
+        rng (java.util.Random. seed)]
+    (java.util.Collections/shuffle al rng)
+    (clojure.lang.RT/vector (.toArray al))))
+
 (defn- get-file-lines [file-path]
   "Return a sequence of all of the lines in the given file."
   (with-open [rdr (reader file-path)]
@@ -30,10 +37,17 @@
   (let [clue-line (random-line! rng lines)]
     (string/split clue-line #"\t")))
 
+(defn- line->clue [line]
+  (string/split line #"\t"))
+
 (defn random-clue-generator [seed]
   "Returns a function that returns a random clue each time it is
   called based on the provided rng seed."
   (let [seed-int (parse-int seed)
-        rng (java.util.Random. seed-int)
-        lines (get-file-lines clues-path)]
-    #(random-clue! rng lines)))
+        lines (get-file-lines clues-path)
+        random-order-lines (deterministic-shuffle lines seed-int)
+        next-lines (atom (cycle random-order-lines))]
+    (fn []
+      (let [line (first @next-lines)]
+        (swap! next-lines rest)
+        (line->clue line)))))
