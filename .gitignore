@@ -13,5 +13,4 @@ pom.xml.asc
 /.repl
 *.log
 /.env
-/resources/clues.tsv
 /resources/public/css/site.min.css
