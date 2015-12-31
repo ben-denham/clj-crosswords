@@ -14,6 +14,8 @@
 (defonce cursor-atom (r/atom (build-cursor nil true)))
 (defonce game-state-atom (r/atom {}))
 
+(defn get-clue-id [clue]
+  (str (:number clue) "-" (if (:across? clue) "across" "down")))
 
 (defn squares-in-word [clue]
   (let [across? (:across? clue)
@@ -184,8 +186,8 @@
            ^{:key idx} [crossword-table-cell idx row-idx cell])]))
     (let [rows (->> (range 0 grid-size)
                     (map #(get grid (keyword (str %)))))]
-      [:div
-       [:table.crossword-table {:cell-spacing 0}
+      [:div#crossword-table
+       [:table {:cell-spacing 0}
         [:tbody
          (for [[idx row] (map-indexed vector rows)]
            ^{:key idx} [crossword-table-row idx row])]]
@@ -199,20 +201,27 @@
       (let [clue-number (:number clue)
             clue-text (:clue clue)
             clue-length (count (:answer clue))
+            id (get-clue-id clue)
             classes (class-list {"selected" (= clue active-word)})]
-        [:p {:class classes} (str clue-number ". " clue-text " (" clue-length ")")]))
+        [:p {:class classes :id id} (str clue-number ". " clue-text " (" clue-length ")")]))
     (defn crossword-clues-list [title clues]
       [:div
-       [:h3 title]
-       (for [[idx clue] (map-indexed vector clues)]
-         ^{:key idx} [crossword-clue clue])])
+       [:div
+        (for [[idx clue] (map-indexed vector clues)]
+          ^{:key idx} [crossword-clue clue])]])
     (let [clues (:clues puzzle)
           across (sort-by :number (filter #(:across? %) clues))
           down (sort-by :number (filter #(not (:across? %)) clues))]
-      [:table.crossword-clues
-       [:tr {:class "top-aligned"}
-        [:td [crossword-clues-list "Across" across]]
-        [:td [crossword-clues-list "Down" down]]]])))
+      [:div
+       [:table {:width "100%" :position "fixed"}
+        [:tr
+         [:td {:width "50%"} [:h3 "Across"]]
+         [:td {:width "50%"} [:h3 "Down"]]]]
+       [:div#crossword-clues
+        [:table
+         [:tr {:class "top-aligned"}
+          [:td {:width "50%"} [crossword-clues-list "Across" across]]
+          [:td {:width "50%"} [crossword-clues-list "Down" down]]]]]])))
 
 
 (defn crossword-player [puzzle-atom-input]
@@ -224,10 +233,21 @@
       [:p "Loading..."]
       [:div.crossword-player {:on-keydown handle-keypress}
        [:table [:tr {:class "top-aligned"}
-                [:td {:width 550} [crossword-table puzzle cursor game-state]]
-                [:td {:width 550} [crossword-clues puzzle cursor]]]]])))
+                [:td {:width 510} [crossword-table puzzle cursor game-state]]
+                [:td {:width 510} [crossword-clues puzzle cursor]]]]])))
+
+(defn scroll-to-active-clue-cursor-watch []
+  (let [puzzle @puzzle-atom
+        cursor @cursor-atom
+        active-word (selected-word cursor (:clues puzzle))
+        clue-id (get-clue-id active-word)
+        clues-container (.getElementById js/document "crossword-clues")
+        clue-element (.getElementById js/document clue-id)
+        clue-offset (.-offsetTop clue-element)]
+    (aset clues-container "scrollTop" clue-offset)))
 
 (defn init-handlers []
+  (add-watch cursor-atom :scroll-to-active-clue scroll-to-active-clue-cursor-watch)
   (events/listen (KeyHandler. js/document) EventType.KEY handle-keypress))
 
 (defonce init

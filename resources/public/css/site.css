@@ -1,6 +1,6 @@
 body {
   font-family: 'Helvetica Neue', Verdana, Helvetica, Arial, sans-serif;
-  max-width: 1300px;
+  max-width: 1100px;
   margin: 0 auto;
   padding-top: 72px;
   -webkit-font-smoothing: antialiased;
@@ -44,12 +44,12 @@ tr.top-aligned > td {
 
 /* Crossword */
 
-table.crossword-table,
-table.crossword-table td {
+#crossword-table table,
+#crossword-table table td {
   border: 1px solid black;
 }
 
-table.crossword-table td {
+#crossword-table td {
   height: 30px;
   width: 30px;
   text-align: center;
@@ -57,44 +57,44 @@ table.crossword-table td {
   cursor: pointer;
 }
 
-table.crossword-table td.empty {
+#crossword-table td.empty {
   background-color: black;
   cursor: default;
 }
 
-table.crossword-table span.clue-number {
+#crossword-table span.clue-number {
   position: absolute;
   font-size: 0.6em;
   top: 2px;
   left: 2px;
 }
 
-.hidden {
-  color: white;
-}
-
-table.crossword-table td.active {
+#crossword-table td.active {
   background: #bce8f1;
   font-weight: bold;
 }
 
-table.crossword-table td.selected {
+#crossword-table td.selected {
   background: #68CDFF;
 }
 
-table.crossword-table td.correct {
+#crossword-table td.correct {
   background: #d6e9c6;
 }
 
-table.crossword-table td.correct.selected {
+#crossword-table td.correct.selected {
   background: #63C564;
 }
 
+#crossword-clues {
+  height: 500px;
+  overflow-y: scroll;
+}
 
-table.crossword-clues p {
+#crossword-clues p {
   padding: 3px;
 }
 
-table.crossword-clues p.selected {
+#crossword-clues p.selected {
   background: #bce8f1;
 }
