@@ -24,13 +24,12 @@
         start-col (:start-col clue)
         row-count (if across? 1 length)
         col-count (if across? length 1)]
-    (set
-     (for [row (range start-row (+ start-row row-count))
-           col (range start-col (+ start-col col-count))]
-       (build-square col row)))))
+    (for [row (range start-row (+ start-row row-count))
+          col (range start-col (+ start-col col-count))]
+      (build-square col row))))
 
 (defn square-in-word? [square clue]
-  (contains? (squares-in-word clue) square))
+  (contains? (set (squares-in-word clue)) square))
 
 (defn words-containing-square-inner [square clues]
   (filter #(square-in-word? square %) clues))
