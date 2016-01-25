@@ -59,9 +59,9 @@
 
 ;; -------------------------
 ;; Initialize app
-(defn mount-components []
+(defn mount-root []
   (r/render [#'app] (.getElementById js/document "app")))
 
 (defn init! []
   (hook-browser-navigation!)
-  (mount-components))
+  (mount-root))
